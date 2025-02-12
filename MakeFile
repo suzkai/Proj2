@@ -1,0 +1,114 @@
+# Directories
+BIN_DIR = bin
+OBJ_DIR = obj
+SRC_DIR = src
+INC_DIR = include
+TEST_DIR = testsrc
+GTEST_DIR = googletest/googletest
+
+# Target Executables
+UTILS_TEST = $(BIN_DIR)/teststrutils
+STRDATASRC_TEST = $(BIN_DIR)/teststrdatasource
+STRDATASINK_TEST = $(BIN_DIR)/teststrdatasink
+DSV_TEST = $(BIN_DIR)/testdsv
+XML_TEST = $(BIN_DIR)/testxml
+
+# Compiler and Flags
+CXX = g++
+CXXFLAGS = -std=c++17 -Wall -Werror -I$(INC_DIR) -I$(GTEST_DIR)/include -I$(GTEST_DIR)
+LDFLAGS = -pthread -lexpat  # Link with Expat library
+
+# Google Test Object Files
+GTEST_OBJ = $(OBJ_DIR)/gtest-all.o $(OBJ_DIR)/gtest_main.o
+
+# Utility Source and Object Files
+UTIL_SOURCES = $(SRC_DIR)/StringUtils.cpp
+UTIL_OBJECTS = $(OBJ_DIR)/StringUtils.o
+UTIL_TEST_SOURCES = $(TEST_DIR)/StringUtilsTest.cpp
+UTIL_TEST_OBJECTS = $(OBJ_DIR)/StringUtilsTest.o
+
+# Data Source & Sink Source and Object Files
+STRDATASRC_SOURCES = $(SRC_DIR)/StringDataSource.cpp
+STRDATASRC_OBJECTS = $(OBJ_DIR)/StringDataSource.o
+STRDATASRC_TEST_SOURCES = $(TEST_DIR)/StringDataSourceTest.cpp
+STRDATASRC_TEST_OBJECTS = $(OBJ_DIR)/StringDataSourceTest.o
+
+STRDATASINK_SOURCES = $(SRC_DIR)/StringDataSink.cpp
+STRDATASINK_OBJECTS = $(OBJ_DIR)/StringDataSink.o
+STRDATASINK_TEST_SOURCES = $(TEST_DIR)/StringDataSinkTest.cpp
+STRDATASINK_TEST_OBJECTS = $(OBJ_DIR)/StringDataSinkTest.o
+
+# DSV Source and Object Files
+DSV_SOURCES = $(SRC_DIR)/DSVReader.cpp $(SRC_DIR)/DSVWriter.cpp
+DSV_OBJECTS = $(OBJ_DIR)/DSVReader.o $(OBJ_DIR)/DSVWriter.o
+DSV_TEST_SOURCES = $(TEST_DIR)/DSVTest.cpp
+DSV_TEST_OBJECTS = $(OBJ_DIR)/DSVTest.o
+
+# XML Source and Object Files
+XML_SOURCES = $(SRC_DIR)/XMLReader.cpp $(SRC_DIR)/XMLWriter.cpp
+XML_OBJECTS = $(OBJ_DIR)/XMLReader.o $(OBJ_DIR)/XMLWriter.o
+XML_TEST_SOURCES = $(TEST_DIR)/XMLTest.cpp
+XML_TEST_OBJECTS = $(OBJ_DIR)/XMLTest.o
+
+# All Object Files
+OBJECTS = $(UTIL_OBJECTS) $(UTIL_TEST_OBJECTS) \
+          $(STRDATASRC_OBJECTS) $(STRDATASRC_TEST_OBJECTS) \
+          $(STRDATASINK_OBJECTS) $(STRDATASINK_TEST_OBJECTS) \
+          $(DSV_OBJECTS) $(DSV_TEST_OBJECTS) \
+          $(XML_OBJECTS) $(XML_TEST_OBJECTS) \
+          $(GTEST_OBJ)
+
+# Default target: Build all test executables
+all: directories $(UTILS_TEST) $(STRDATASRC_TEST) $(STRDATASINK_TEST) $(DSV_TEST) $(XML_TEST)
+
+# Build teststrutils executable
+$(UTILS_TEST): $(UTIL_OBJECTS) $(UTIL_TEST_OBJECTS) $(GTEST_OBJ)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+
+# Build teststrdatasource executable
+$(STRDATASRC_TEST): $(STRDATASRC_OBJECTS) $(STRDATASRC_TEST_OBJECTS) $(GTEST_OBJ)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+
+# Build teststrdatasink executable
+$(STRDATASINK_TEST): $(STRDATASINK_OBJECTS) $(STRDATASINK_TEST_OBJECTS) $(GTEST_OBJ)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+
+# Build testdsv executable
+$(DSV_TEST): $(DSV_OBJECTS) $(DSV_TEST_OBJECTS) $(GTEST_OBJ)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+
+# Build testxml executable
+$(XML_TEST): $(XML_OBJECTS) $(XML_TEST_OBJECTS) $(GTEST_OBJ)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+
+# Compile Individual Source Files
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/%.o: $(TEST_DIR)/%.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# Compile Google Test sources
+$(OBJ_DIR)/gtest-all.o: $(GTEST_DIR)/src/gtest-all.cc
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/gtest_main.o: $(GTEST_DIR)/src/gtest_main.cc
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# Create directories if they don't exist
+directories:
+	mkdir -p $(BIN_DIR)
+	mkdir -p $(OBJ_DIR)
+
+# Clean up build artifacts
+clean:
+	rm -rf $(BIN_DIR)
+	rm -rf $(OBJ_DIR)
+
+# Run all test executables in order
+runtests: all
+	./$(UTILS_TEST)
+	./$(STRDATASRC_TEST)
+	./$(STRDATASINK_TEST)
+	./$(DSV_TEST)
+	./$(XML_TEST)
