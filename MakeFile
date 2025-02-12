@@ -7,7 +7,7 @@ TEST_DIR = proj2/testsrc
 GTEST_DIR = googletest/googletest
 
 # Target Executables
-# UTILS_TEST = $(BIN_DIR)/teststrutils
+# UTILS_TEST = $(BIN_DIR)/teststrutils (put in order written on assignment)
 STRDATASRC_TEST = $(BIN_DIR)/teststrdatasource
 STRDATASINK_TEST = $(BIN_DIR)/teststrdatasink
 DSV_TEST = $(BIN_DIR)/testdsv
@@ -15,6 +15,7 @@ XML_TEST = $(BIN_DIR)/testxml
 
 # Compiler and Flags
 CXX = g++
+# added "-Wno-sign-compare"
 CXXFLAGS = -std=c++17 -Wall -Werror -Wno-sign-compare -I$(INC_DIR) -I$(GTEST_DIR)/include -I$(GTEST_DIR)
 LDFLAGS = -pthread -lexpat  # Link with Expat library
 
