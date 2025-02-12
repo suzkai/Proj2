@@ -1,13 +1,13 @@
 # Directories
 BIN_DIR = bin
 OBJ_DIR = obj
-SRC_DIR = src
-INC_DIR = include
-TEST_DIR = testsrc
+SRC_DIR = proj2/src
+INC_DIR = proj2/include
+TEST_DIR = proj2/testsrc
 GTEST_DIR = googletest/googletest
 
 # Target Executables
-UTILS_TEST = $(BIN_DIR)/teststrutils
+# UTILS_TEST = $(BIN_DIR)/teststrutils
 STRDATASRC_TEST = $(BIN_DIR)/teststrdatasource
 STRDATASINK_TEST = $(BIN_DIR)/teststrdatasink
 DSV_TEST = $(BIN_DIR)/testdsv
@@ -15,17 +15,17 @@ XML_TEST = $(BIN_DIR)/testxml
 
 # Compiler and Flags
 CXX = g++
-CXXFLAGS = -std=c++17 -Wall -Werror -I$(INC_DIR) -I$(GTEST_DIR)/include -I$(GTEST_DIR)
+CXXFLAGS = -std=c++17 -Wall -Werror -Wno-sign-compare -I$(INC_DIR) -I$(GTEST_DIR)/include -I$(GTEST_DIR)
 LDFLAGS = -pthread -lexpat  # Link with Expat library
 
 # Google Test Object Files
 GTEST_OBJ = $(OBJ_DIR)/gtest-all.o $(OBJ_DIR)/gtest_main.o
 
-# Utility Source and Object Files
-UTIL_SOURCES = $(SRC_DIR)/StringUtils.cpp
-UTIL_OBJECTS = $(OBJ_DIR)/StringUtils.o
-UTIL_TEST_SOURCES = $(TEST_DIR)/StringUtilsTest.cpp
-UTIL_TEST_OBJECTS = $(OBJ_DIR)/StringUtilsTest.o
+# Utility Source and Object Files -- from proj1
+# UTIL_SOURCES = $(SRC_DIR)/StringUtils.cpp
+# UTIL_OBJECTS = $(OBJ_DIR)/StringUtils.o
+# UTIL_TEST_SOURCES = $(TEST_DIR)/StringUtilsTest.cpp
+# UTIL_TEST_OBJECTS = $(OBJ_DIR)/StringUtilsTest.o
 
 # Data Source & Sink Source and Object Files
 STRDATASRC_SOURCES = $(SRC_DIR)/StringDataSource.cpp
@@ -61,9 +61,9 @@ OBJECTS = $(UTIL_OBJECTS) $(UTIL_TEST_OBJECTS) \
 # Default target: Build all test executables
 all: directories $(UTILS_TEST) $(STRDATASRC_TEST) $(STRDATASINK_TEST) $(DSV_TEST) $(XML_TEST)
 
-# Build teststrutils executable
-$(UTILS_TEST): $(UTIL_OBJECTS) $(UTIL_TEST_OBJECTS) $(GTEST_OBJ)
-	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+# # Build teststrutils executable
+# $(UTILS_TEST): $(UTIL_OBJECTS) $(UTIL_TEST_OBJECTS) $(GTEST_OBJ)
+# 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 # Build teststrdatasource executable
 $(STRDATASRC_TEST): $(STRDATASRC_OBJECTS) $(STRDATASRC_TEST_OBJECTS) $(GTEST_OBJ)
