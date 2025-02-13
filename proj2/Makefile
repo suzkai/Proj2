@@ -2,7 +2,7 @@
 ### check to make sure you're in Proj2/proj2 to run make
 
 CXXFLAGS = -std=c++17 -I ./include/
-PATHS = -isystem /user/src/googletest/googletest/include -pthread /usr/lib/x86_64-linux-gnu/libgtest.a /usr/lib/x86_64-linux-gnu/libgtest_main.a
+PATHS = -isystem /user/src/googletest/googletest/include -pthread /usr/lib/libgtest.a /usr/lib/libgtest_main.a
 
 SRC_DIR = src
 TEST_DIR = testsrc
@@ -15,7 +15,8 @@ BIN_DIR = bin
 OBJ = $(OBJ_DIR)/DSVReader.o $(OBJ_DIR)/DSVWriter.o \
 	$(OBJ_DIR)/StringDataSource.o $(OBJ_DIR)/StringDataSink.o  \
 	$(OBJ_DIR)/XMLReader.o $(OBJ_DIR)/XMLWriter.o \
-	$(OBJ_DIR)/StringDataSinkTest.o $(OBJ_DIR)/StringDataSourceTest.o
+	$(OBJ_DIR)/StringDataSinkTest.o $(OBJ_DIR)/StringDataSourceTest.o \
+	$(OBJ_DIR)/DSVTest.o
 
 EXEC = $(BIN_DIR)/exec
 
@@ -49,6 +50,9 @@ $(OBJ_DIR)/StringDataSinkTest.o: $(TEST_DIR)/StringDataSinkTest.cpp
 
 $(OBJ_DIR)/StringDataSourceTest.o: $(TEST_DIR)/StringDataSourceTest.cpp
 	g++ $(CXXFLAGS) -c $(TEST_DIR)/StringDataSourceTest.cpp -o $(OBJ_DIR)/StringDataSourceTest.o
+
+$(OBJ_DIR)/DSVTest.o: $(TEST_DIR)/DSVTest.cpp
+	g++ $(CXXFLAGS) -c $(TEST_DIR)/DSVTest.cpp -o $(OBJ_DIR)/DSVTest.o
 
 # magic
 $(EXEC): bin $(OBJ)

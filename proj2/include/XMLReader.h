@@ -8,7 +8,9 @@
 class CXMLReader{
     private:
         struct SImplementation;
-        std::unique_ptr<SImplementation> DImplementation;
+        // std::unique_ptr<SImplementation> DImplementation;
+
+        std::shared_ptr< CDataSource > Source;
         
     public:
         CXMLReader(std::shared_ptr< CDataSource > src);
