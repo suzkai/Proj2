@@ -44,22 +44,29 @@ struct CXMLReader::SImplementation {
                 EndOfFile = true;
                 return false;
             }
-
+    
             std::vector<char> buffer(1024);
             size_t bytesRead = Source->Read(buffer, buffer.size());
-
+    
             if (!XML_Parse(Parser, buffer.data(), bytesRead, Source->End())) {
                 return false; // Parsing error
             }
         }
-
+    
         if (!Entities.empty()) {
             entity = Entities.front();
             Entities.erase(Entities.begin());
+    
+            // If this was the last entity, mark as EOF
+            if (Entities.empty() && Source->End()) {
+                EndOfFile = true;
+            }
+    
             return true;
         }
+    
         return false;
-    }
+    }    
 };
 
 // Constructor: initializes the XML reader
