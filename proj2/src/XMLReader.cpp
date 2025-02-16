@@ -41,7 +41,7 @@ struct CXMLReader::SImplementation {
     bool ReadNextEntity(SXMLEntity &entity) {
         if (Entities.empty()) {
             if (Source->End()) {
-                EndOfFile = true;
+                //EndOfFile = true;
                 return false;
             }
     
