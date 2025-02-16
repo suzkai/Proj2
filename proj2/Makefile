@@ -1,8 +1,16 @@
 
 ### check to make sure you're in Proj2/proj2 to run make
 
-CXXFLAGS = -std=c++17 -I ./include/
-PATHS = -isystem /user/src/googletest/googletest/include -pthread /usr/lib/libgtest.a /usr/lib/libgtest_main.a
+# CXXFLAGS = -std=c++17 -I ./include/
+CXXFLAGS = -std=c++17 -I ./include/ -mmacosx-version-min=13.6
+
+# updated from:
+# PATHS = -isystem /user/src/googletest/googletest/include -pthread /usr/lib/libgtest.a /usr/lib/libgtest_main.a
+PATHS = -isystem /usr/local/include -pthread /usr/local/lib/libgtest.a /usr/local/lib/libgtest_main.a
+
+# define and use LDFLAGS
+LDFLAGS = -lgtest -lgtest_main -pthread -L/usr/local/lib -I/usr/local/include \
+          -L/opt/homebrew/opt/expat/lib -I/opt/homebrew/opt/expat/include -lexpat
 
 SRC_DIR = src
 TEST_DIR = testsrc
@@ -56,7 +64,9 @@ $(OBJ_DIR)/DSVTest.o: $(TEST_DIR)/DSVTest.cpp
 
 # magic
 $(EXEC): bin $(OBJ)
-	g++ -std=c++17 -lgtest -lgtest_main -lpthread $(PATHS) -o $(EXEC) $(OBJ)
+	g++ -std=c++17 $(OBJ) $(LDFLAGS) -o $(EXEC)
+# $(EXEC): bin $(OBJ)
+# 	g++ -std=c++17 -lgtest -lgtest_main -lpthread $(PATHS) -o $(EXEC) $(OBJ)
 
 run: $(EXEC)
 	./$(EXEC)
