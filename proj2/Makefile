@@ -1,8 +1,8 @@
 
 ### check to make sure you're in Proj2/proj2 to run make
 
-# CXXFLAGS = -std=c++17 -I ./include/
-CXXFLAGS = -std=c++17 -I ./include/ -mmacosx-version-min=13.6
+CXXFLAGS = -std=c++17 -I ./include/
+# CXXFLAGS = -std=c++17 -I ./include/ -mmacosx-version-min=13.6
 
 # updated from:
 # PATHS = -isystem /user/src/googletest/googletest/include -pthread /usr/lib/libgtest.a /usr/lib/libgtest_main.a
