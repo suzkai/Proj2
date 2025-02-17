@@ -14,11 +14,27 @@ struct CXMLReader::SImplementation {
         Parser = XML_ParserCreate(nullptr); // Create an Expat XML parser
         XML_SetUserData(Parser, this);
         XML_SetElementHandler(Parser, StartElementHandler, EndElementHandler);
+        XML_SetCharacterDataHandler(Parser, CharacterDataHandler); // added this
     }
 
     ~SImplementation() {
         XML_ParserFree(Parser); // Cleanup Expat parser
     }
+
+    // added this
+    static void CharacterDataHandler(void *userData, const char *data, int len) {
+        auto *impl = static_cast<SImplementation *>(userData);
+        std::string text(data, len);
+        
+        // ignore any empty or whitespace-only text nodes
+        if (text.find_first_not_of(" \t\n\r") != std::string::npos) {
+            SXMLEntity entity;
+            entity.DType = SXMLEntity::EType::CharData;
+            entity.DNameData = text;
+            impl->Entities.push_back(entity);
+        }
+    }
+    
 
     static void StartElementHandler(void *userData, const char *name, const char **atts) {
         auto *impl = static_cast<SImplementation *>(userData);

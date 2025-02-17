@@ -53,7 +53,7 @@ bool CDSVReader::ReadRow(std::vector<std::string> &row) {
     
     // return false if no more data to read on next line
     if (!DImplementation->ReadNextLine()) {
-        DImplementation->EndOfFile = true;  // Mark as end of source
+        // DImplementation->EndOfFile = true;  removed this
         return false;
     }
     

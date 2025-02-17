@@ -20,11 +20,20 @@ bool CXMLWriter::WriteEntity(const SXMLEntity &entity) {
         }
 
         // Check if it's a self-closing tag (no children or attributes)
-        if (entity.DAttributes.empty()) {
-            output << " />"; // Self-closing tag
-        } else {
-            output << ">";
+        if (entity.DType == SXMLEntity::EType::StartElement) {
+            output << "<" << entity.DNameData;
+            for (const auto &attr : entity.DAttributes) {
+                output << " " << attr.first << "=\"" << attr.second << "\"";
+            }
+        
+            // Only self-close if there's NO text or children
+            if (entity.DAttributes.empty()) {
+                output << " />"; // Self-closing tag
+            } else {
+                output << ">"; // Properly open tag
+            }
         }
+        
     } else if (entity.DType == SXMLEntity::EType::EndElement) {
         output << "</" << entity.DNameData << ">";
     }
