@@ -1,34 +1,18 @@
-# CDSVReader Class Documentation
+# DSVReader (CDSVReader)
+The `CDSVReader` class is responsible for reading delimiter-separated values (DSV) from a given data source. It supports handling quoted fields and parsing structured text from a data stream.
 
-The `CDSVReader` class is responsible for reading and parsing Delimited Separated Values (DSV) files (e.g., CSV files). It reads data row by row and converts it into a `std::vector<std::string>` format.
+## 📌 Features
+- Reads DSV files with customizable delimiters.
+- Handles quoted fields correctly (`""` inside quoted text is unescaped as `"`).
+- Detects and properly marks the end of the file.
 
-## Constructor
+## 🛠️ Implementation Details
+The reader uses a **private struct (`SImplementation`)** that contains:
+- `Source`: A shared pointer to `CDataSource` for reading input.
+- `Delimiter`: The character used to separate values.
+- `CurrentLine`: Stores the current line being processed.
+- `EndOfFile`: Boolean flag to track whether the file has been completely read.
 
-### `CDSVReader::CDSVReader(std::shared_ptr<CDataSource> src, char delimiter)`
-
-- **src**: A shared pointer to a `CDataSource` object, which specifies the data source to read from.
-- **delimiter**: The delimiter used to separate values in the file (typically `,` for CSV, `\t` for TSV).
-
-## Functions
-
-### `bool CDSVReader::ReadRow(std::vector<std::string>& row)`
-
-Reads a single row from the data source and stores the resulting column values in the provided `row` vector.
-
-**Parameters:**
-- `row`: A reference to a `std::vector<std::string>` to store the parsed row data.
-
-**Returns:**
-- `true` if the row was successfully read.
-- `false` if no more rows are available (e.g., end of file).
-
-**Example:**
+### 🔹 **Constructor**
 ```cpp
-std::vector<std::string> row;
-CDSVReader reader(dataSource, ',');
-while (reader.ReadRow(row)) {
-    for (const auto& cell : row) {
-        std::cout << cell << " ";
-    }
-    std::cout << std::endl;
-}
+CDSVReader(std::shared_ptr<CDataSource> src, char delimiter);
