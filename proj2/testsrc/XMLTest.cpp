@@ -22,9 +22,12 @@ TEST(XMLWriterTest, WriteBasicXML) {
     CXMLWriter writer(dataSink);
 
     SXMLEntity entity;
+    entity.DType = SXMLEntity::EType::StartElement;  // ✅ Ensure it's a StartElement
     entity.DNameData = "test";
+    
     writer.WriteEntity(entity);
 
     std::string expected_output = "<test/>";
     EXPECT_EQ(dataSink->String(), expected_output);
 }
+
