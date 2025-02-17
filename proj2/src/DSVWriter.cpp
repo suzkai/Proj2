@@ -1,52 +1,69 @@
 #include "DSVWriter.h"
-#include <sstream>
+#include "StringDataSink.h"
 
-// constructor: initializes the sink, delimiter, and quoteAll flag
+struct CDSVWriter::SImplementation {
+    std::shared_ptr<CDataSink> Sink;
+    char Delimiter;
+    bool QuoteAll;
+
+    SImplementation(std::shared_ptr<CDataSink> sink, char delimiter, bool quoteall)
+        : Sink(sink), Delimiter(delimiter), QuoteAll(quoteall) {}
+};
+
+//================================================================
+
 CDSVWriter::CDSVWriter(std::shared_ptr<CDataSink> sink, char delimiter, bool quoteall)
-    : Sink(std::move(sink)), Delimiter(delimiter), QuoteAll(quoteall) {}
+    : DImplementation(std::make_unique<SImplementation>(sink, delimiter, quoteall)) {}
 
-// destructor: default as no manual memory management is required
-CDSVWriter::~CDSVWriter() = default;
+CDSVWriter::~CDSVWriter() {}
 
-// formats a single cell based on DSV rules (quotes, escape handling, etc.)
-std::string FormatCell(const std::string &cell, char delimiter, bool quoteAll) {
-    std::string formatted = cell;
-    bool needsQuotes = quoteAll || cell.find(delimiter) != std::string::npos ||
-                       cell.find('"') != std::string::npos || cell.find('\n') != std::string::npos;
+bool CDSVWriter::WriteRow(const std::vector<std::string>& row) {
 
-    if (needsQuotes) {
-        std::ostringstream quotedCell;
-        quotedCell << '"';
-        for (char ch : formatted) {
-            if (ch == '"') {
-                quotedCell << "\"\""; // escape double quotes
-            } else {
-                quotedCell << ch;
-            }
+    // > An empty line is a valid row where there are no values.
+    std::vector<char> buf;
+    if(row.size() == 0){
+        return DImplementation->Delimiter;
+    }
+
+    std::string ret;
+
+    for(size_t i = 0; i < row.size(); i++){
+        if(i != 0 && row[i].size() > 0){
+            ret += DImplementation->Delimiter;
         }
-        quotedCell << '"';
-        formatted = quotedCell.str();
-    }
+        
+    
+        // if QuoteAll or delimiter, quotes, or newline in element
+        if(DImplementation->QuoteAll || 
+            row[i].find(DImplementation->Delimiter) != std::string::npos ||
+            row[i].find('"') != std::string::npos || 
+            row[i].find('\n') != std::string::npos)   
+        {
+            ret += '"';
+            const std::string &element = row[i];
+            for(size_t j = 0; j < element.size(); j++){
 
-    return formatted;
-}
+                // Values that have either the delimiter,
+                // double quote character ‘"’, or newline must be
+                // quoted with double quotes.
+                const char c = element[j];
+                if(c == '"'){
+                    ret += "\"\"";
+                }
+                else{
+                    ret += c;
+                }
+            }
+            ret += "\"";
+        }
 
-// writes a row of data to the sink, applying proper formatting
-bool CDSVWriter::WriteRow(const std::vector<std::string> &row) {
-    if (!Sink) {
-        return false; // if no valid sink, return failure
-    }
+        else{
+            ret += row[i];
+        }
+    } // for loop
 
-    std::ostringstream rowStream;
-    for (size_t i = 0; i < row.size(); i++) {
-        if (i > 0) { rowStream << Delimiter; } // separate values with delimiter
-        rowStream << FormatCell(row[i], Delimiter, QuoteAll); // format cell properly
-    }
+    ret += "\n";
 
-    std::string outputRow = rowStream.str();
-    std::vector<char> outputVector(outputRow.begin(), outputRow.end());
-    outputVector.push_back('\n'); // Add newline manually
-
-    return Sink->Write(outputVector); // Now passing a vector<char>
-
+    buf = {ret.begin(), ret.end()};
+    return DImplementation->Sink->Write(buf) > 0;
 }
