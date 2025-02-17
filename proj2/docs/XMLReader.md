@@ -1,37 +1,14 @@
+# XMLReader
+
+## 📌 Overview
+The `CXMLReader` class is responsible for **reading and parsing XML entities** from a given `CDataSource`. It uses the **Expat** library for XML parsing and supports reading **start elements, end elements, and character data**.
+
+Additionally, if a `CDataSink` is provided, `CXMLReader` can also **write XML entities**.
 
 ---
 
-### **3. `CXMLReader.md`**
-
-```markdown
-# CXMLReader Class Documentation
-
-The `CXMLReader` class is designed to parse XML data. It uses the Expat library to process XML elements and attributes from a data source, and returns each parsed element as an `SXMLEntity`.
-
-## Constructor
-
-### `CXMLReader::CXMLReader(std::shared_ptr<CDataSource> src)`
-
-- **src**: A shared pointer to a `CDataSource` object, specifying the XML data source.
-
-## Functions
-
-### `bool CXMLReader::ReadEntity(SXMLEntity &entity, bool skipcdata = false)`
-
-Reads an XML entity from the data source and stores it in the provided `entity` object.
-
-**Parameters:**
-- `entity`: A reference to an `SXMLEntity` object where the parsed entity will be stored.
-- `skipcdata`: If `true`, CDATA sections will be skipped. If `false`, they will be included.
-
-**Returns:**
-- `true` if the entity was successfully read.
-- `false` if no more entities are available (end of file).
-
-**Example:**
+## 📌 **Class: `CXMLReader`**
+### **Constructor**
 ```cpp
-SXMLEntity entity;
-CXMLReader reader(dataSource);
-while (reader.ReadEntity(entity)) {
-    std::cout << "Element: " << entity.DNameData << std::endl;
-}
+CXMLReader(std::shared_ptr<CDataSource> src);
+CXMLReader(std::shared_ptr<CDataSource> src, std::shared_ptr<CDataSink> sink);
