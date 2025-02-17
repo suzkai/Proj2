@@ -8,22 +8,6 @@ CXMLWriter::CXMLWriter(std::shared_ptr<CDataSink> sink)
 // Destructor
 CXMLWriter::~CXMLWriter() = default;
 
-// Function to properly escape XML special characters
-std::string EscapeXML(const std::string &str) {
-    std::ostringstream escaped;
-    for (char c : str) {
-        switch (c) {
-            case '&': escaped << "&amp;"; break;
-            case '"': escaped << "&quot;"; break;
-            case '\'': escaped << "&apos;"; break;
-            case '<': escaped << "&lt;"; break;
-            case '>': escaped << "&gt;"; break;
-            default: escaped << c;
-        }
-    }
-    return escaped.str();
-}
-
 // Writes an XML entity to the sink
 bool CXMLWriter::WriteEntity(const SXMLEntity &entity) {
     if (!Sink) return false;
@@ -33,14 +17,13 @@ bool CXMLWriter::WriteEntity(const SXMLEntity &entity) {
     if (entity.DType == SXMLEntity::EType::StartElement) {
         output << "<" << entity.DNameData;
 
-        // Write attributes with proper escaping
         for (const auto &attr : entity.DAttributes) {
-            output << " " << attr.first << "=\"" << EscapeXML(attr.second) << "\"";
+            output << " " << attr.first << "=\"" << attr.second << "\"";
         }
 
-        // Correctly self-close empty elements (like <osm />)
-        if (entity.DAttributes.empty() && entity.DNameData == "osm") {  
-            output << " />";
+        // ✅ Fix: Remove space before self-closing `/ >`
+        if (entity.DAttributes.empty()) {
+            output << "/>";  // ✅ No space before `/>`
         } else {
             output << ">";
         }
