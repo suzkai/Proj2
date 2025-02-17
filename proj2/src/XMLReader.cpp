@@ -1,6 +1,7 @@
 #include "XMLReader.h"
 #include <expat.h>
 #include <sstream>
+#include <iostream>
 
 // Private struct implementation (PImpl pattern)
 struct CXMLReader::SImplementation {
@@ -41,7 +42,7 @@ struct CXMLReader::SImplementation {
     bool ReadNextEntity(SXMLEntity &entity) {
         if (Entities.empty()) {
             if (Source->End()) {
-                //EndOfFile = true;
+                EndOfFile = true;  // Set the EOF flag correctly
                 return false;
             }
     
@@ -49,6 +50,7 @@ struct CXMLReader::SImplementation {
             size_t bytesRead = Source->Read(buffer, buffer.size());
     
             if (!XML_Parse(Parser, buffer.data(), bytesRead, Source->End())) {
+                std::cerr << "XML Parsing Error: " << XML_ErrorString(XML_GetErrorCode(Parser)) << std::endl;
                 return false; // Parsing error
             }
         }
