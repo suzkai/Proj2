@@ -1,5 +1,6 @@
 #include "XMLWriter.h"
 #include <sstream>
+#include <iostream>
 
 // Constructor: initializes the XML writer
 CXMLWriter::CXMLWriter(std::shared_ptr<CDataSink> sink)
@@ -8,33 +9,91 @@ CXMLWriter::CXMLWriter(std::shared_ptr<CDataSink> sink)
 // Destructor
 CXMLWriter::~CXMLWriter() = default;
 
+// Helper function to escape special characters in XML (attributes or text)
+std::string EscapeXML(const std::string &input) {
+    std::string escaped = input;
+    size_t pos = 0;
+
+    // Escape '&' as '&amp;'
+    while ((pos = escaped.find("&", pos)) != std::string::npos) {
+        escaped.replace(pos, 1, "&amp;");
+        pos += 5; // Skip past the escape sequence
+    }
+
+    // Escape '<' as '&lt;'
+    pos = 0;
+    while ((pos = escaped.find("<", pos)) != std::string::npos) {
+        escaped.replace(pos, 1, "&lt;");
+        pos += 4;
+    }
+
+    // Escape '>' as '&gt;'
+    pos = 0;
+    while ((pos = escaped.find(">", pos)) != std::string::npos) {
+        escaped.replace(pos, 1, "&gt;");
+        pos += 4;
+    }
+
+    // Escape '"' as '&quot;'
+    pos = 0;
+    while ((pos = escaped.find("\"", pos)) != std::string::npos) {
+        escaped.replace(pos, 1, "&quot;");
+        pos += 6;
+    }
+
+    // Escape "'" as '&apos;'
+    pos = 0;
+    while ((pos = escaped.find("'", pos)) != std::string::npos) {
+        escaped.replace(pos, 1, "&apos;");
+        pos += 6;
+    }
+
+    return escaped;
+}
+
 // Writes an XML entity to the sink
 bool CXMLWriter::WriteEntity(const SXMLEntity &entity) {
     if (!Sink) return false;
 
     std::ostringstream output;
+
+    // Process start element
     if (entity.DType == SXMLEntity::EType::StartElement) {
         output << "<" << entity.DNameData;
+
+        // Process attributes
         for (const auto &attr : entity.DAttributes) {
-            output << " " << attr.first << "=\"" << attr.second << "\"";
+            output << " " << attr.first << "=\"" << EscapeXML(attr.second) << "\""; // Escape attribute values
         }
 
-        // Check if it's a self-closing tag (no children or attributes)
+        // If no attributes or children, self-close the tag
         if (entity.DAttributes.empty()) {
             output << " />"; // Self-closing tag
         } else {
-            output << ">";
+            output << ">";  // Open the element
         }
-    } else if (entity.DType == SXMLEntity::EType::EndElement) {
-        output << "</" << entity.DNameData << ">";
+    }
+    // Process end element
+    else if (entity.DType == SXMLEntity::EType::EndElement) {
+        output << "</" << entity.DNameData << ">";  // Close the element
     }
 
-    std::string outputStr = output.str();
-    std::vector<char> outputVec(outputStr.begin(), outputStr.end());
-    return Sink->Write(outputVec);
+    // Store the generated XML in the buffer
+    buffer_ += output.str();
+
+    return true;
 }
 
-// Flushes remaining data (not needed for simple cases)
+// Flushes the accumulated data to the sink
 bool CXMLWriter::Flush() {
-    return true;
+    if (!Sink) return false;
+
+    // Write all the accumulated content to the sink
+    std::vector<char> outputVec(buffer_.begin(), buffer_.end());
+    bool result = Sink->Write(outputVec);
+
+    // Clear the buffer after writing
+    buffer_.clear();
+
+    return result;
 }
