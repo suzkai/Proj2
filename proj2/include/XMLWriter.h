@@ -11,8 +11,7 @@ class CXMLWriter{
         // std::unique_ptr<SImplementation> DImplementation;
 
         std::shared_ptr< CDataSink > Sink;
-        std::shared_ptr<CDataSink> Sink;
-        std::string buffer_;
+        
         
     public:
         CXMLWriter(std::shared_ptr< CDataSink > sink);
