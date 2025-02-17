@@ -56,46 +56,49 @@ bool CDSVReader::End() const {
 
 // reads a row from the dsv file and fills vector with values
 bool CDSVReader::ReadRow(std::vector<std::string> &row) {
-    row.clear(); // clear the row for new values
-    
-    // return false if no more data to read on next line
+    row.clear(); // Clear the row for new values
+
     if (!DImplementation->ReadNextLine()) {
-        // DImplementation->EndOfFile = true;  removed this
         return false;
     }
-    
 
-    std::stringstream lineStream(DImplementation->CurrentLine); // use stringstream to parse line
-    std::string cell; 
+    std::stringstream lineStream(DImplementation->CurrentLine);
+    std::string cell;
     char delimiter = DImplementation->Delimiter;
-    bool inQuotes = false; 
+    bool inQuotes = false;
 
-    // loop through each character in the line
     while (lineStream) {
         char ch;
         if (!lineStream.get(ch)) { 
             break; 
         }
 
-        if (ch == '"') { // for handling of quoted fields
+        if (ch == '"') { // Handle quoted fields
             if (!inQuotes) {
-                inQuotes = true; // opening quote found
+                inQuotes = true; // Opening quote
             } else {
-                if (lineStream.peek() == '"') { // check if next char is another quote
-                    lineStream.get(ch); 
-                    cell += '"'; 
+                if (lineStream.peek() == '"') { // Handle escaped quotes
+                    lineStream.get(ch);
+                    cell += '"';
                 } else {
-                    inQuotes = false; // closing quote detected
+                    inQuotes = false; // Closing quote
                 }
             }
-        } else if (ch == delimiter && !inQuotes) { // if delimiter is found outside quotes
-            row.push_back(cell); // add completed cell to row
-            cell.clear(); // reset cell for next value
+        } else if (ch == delimiter && !inQuotes) { // If delimiter is found outside quotes
+            row.push_back(cell);
+            cell.clear();
         } else {
-            cell += ch; 
+            cell += ch;
         }
     }
-    
-    row.push_back(cell); 
-    return true; // return true if row was successfully read
+
+    row.push_back(cell);
+
+    // 🔹 Preserve Quotes Around Fully Quoted Strings
+    if (!row.empty() && row[0].front() == '"' && row[0].back() == '"') {
+        row[0] = "\"" + row[0] + "\"";  // Keep the full quoted string format
+    }
+
+    return true;
 }
+
