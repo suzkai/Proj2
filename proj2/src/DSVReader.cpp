@@ -16,24 +16,31 @@ struct CDSVReader::SImplementation {
     // reads the next line from the data source and updates the current line
     // returns false if end of file is reached
     bool ReadNextLine() {
-        CurrentLine.clear(); // reset the line buffer
+        CurrentLine.clear(); // Reset the line buffer
         char ch;
-
-        while (Source->Get(ch)) { // read character by character
-            if (ch == '\n') { // stop at newline
+        bool hasData = false;
+    
+        while (Source->Get(ch)) { // Read character by character
+            hasData = true; // At least one character read
+            if (ch == '\n') { // Stop at newline
                 break;
             }
             CurrentLine += ch;
         }
-
-        // if nothing was read and end of file is reached, mark it
-        if (CurrentLine.empty() && Source->End()) { 
+    
+        // If no data was read and the source is at the end, mark EOF
+        if (!hasData && Source->End()) { 
             EndOfFile = true;
             return false;
         }
-
-        return true; // return true if data was read
-    }
+    
+        // If we hit EOF after reading a line, mark EOF
+        if (Source->End()) { 
+            EndOfFile = true;
+        }
+    
+        return true;
+    }    
 };
 
 // store everything inside SImplementation and use a std::unique_ptr to deal w/ cleaup
