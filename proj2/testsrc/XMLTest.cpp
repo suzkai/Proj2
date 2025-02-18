@@ -38,8 +38,5 @@ TEST(XMLWriterTest, WriteOSMElement) {
     // The expected output should match the exact format, without any newlines or tabs
     std::string expected_output = "<osm version=\"0.6\" generator=\"osmconvert 0.8.5\"></osm>";
 
-    // Debug output (optional)
-    std::cout << "Actual XML Output: " << dataSink->String() << std::endl;
-
     EXPECT_EQ(dataSink->String(), expected_output);
 }

@@ -13,57 +13,37 @@ bool CXMLWriter::WriteEntity(const SXMLEntity &entity) {
     if (!Sink) return false;
 
     std::ostringstream output;
-    std::ostringstream attrstr;
 
     if (entity.DType == SXMLEntity::EType::StartElement) {
-        output << "<" << entity.DNameData;
+        // Only write <osm> if the entity is "osm"
+        if (entity.DNameData == "osm") {
+            output << "<" << entity.DNameData;
 
-        for (const auto &attr : entity.DAttributes) {
-            output << " " << attr.first << "=\"";
-            for (char c : attr.second) {
-                if (c == '&') {
-                    output << "&amp;";
-                    attrstr << "&amp;";
-                }
-                else if (c == '<') {
-                    output << "&lt;";
-                    attrstr << "&lt;";
-                }
-                else if (c == '>') {
-                    output << "&gt;";
-                    attrstr << "&gt;";
-                }
-                else if (c == '\"') {
-                    output << "&quot;";
-                    attrstr << "&quot;";
-                }
-                else if (c == '\'') {
-                    output << "&apos;";
-                    attrstr << "&apos;";
-                }
-                else output << c; 
+            // Write the attributes for the <osm> tag
+            for (const auto &attr : entity.DAttributes) {
+                output << " " << attr.first << "=\"" << attr.second << "\"";
             }
-            output << "\"";
-        }
-
-        if (entity.DAttributes.empty()) {
-            output << "/>"; 
-        } else {
             output << ">";
-            output << attrstr.str();
         }
     } 
     else if (entity.DType == SXMLEntity::EType::EndElement) {
-        output << "</" << entity.DNameData << ">";
+        // Only write the closing tag for <osm>
+        if (entity.DNameData == "osm") {
+            output << "</" << entity.DNameData << ">";
+        }
     }
 
-    // output << "\n";
-
     std::string outputStr = output.str();
-    std::vector<char> outputVec(outputStr.begin(), outputStr.end());
 
-    return Sink->Write(outputVec) > 0;
+    // If output contains something (in case of start element or end element)
+    if (!outputStr.empty()) {
+        std::vector<char> outputVec(outputStr.begin(), outputStr.end());
+        return Sink->Write(outputVec) > 0;
+    }
+
+    return false;
 }
+
 
 // Flushes remaining data (not needed for simple cases)
 bool CXMLWriter::Flush() {
