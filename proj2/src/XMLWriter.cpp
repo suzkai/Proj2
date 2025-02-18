@@ -47,15 +47,19 @@ bool CXMLWriter::WriteEntity(const SXMLEntity &entity) {
         }
 
         // ✅ Fix: Remove space before self-closing `/ >`
-        if (entity.DAttributes.empty()) {
+        if (entity.DAttributes.empty() && entity.DAttributes.empty()) {
             output << "/>";  // ✅ No space before `/>`
         } else {
+            Stack.push_back(entity.DNameData);
             output << ">";
             output << attrstr.str();
         }
     } 
     else if (entity.DType == SXMLEntity::EType::EndElement) {
+        if (!Stack.empty() && Stack.back() == entity.DNameData) {
         output << "</" << entity.DNameData << ">";
+        Stack.pop_back();
+        }
     }
 
     std::string outputStr = output.str();
