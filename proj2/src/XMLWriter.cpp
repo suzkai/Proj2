@@ -8,54 +8,46 @@ CXMLWriter::CXMLWriter(std::shared_ptr<CDataSink> sink)
 // Destructor
 CXMLWriter::~CXMLWriter() = default;
 
-// Writes an XML entity to the sink
+// Function to properly escape XML special characters
+std::string EscapeXML(const std::string &str) {
+    std::ostringstream escaped;
+    for (char c : str) {
+        switch (c) {
+            case '&': escaped << "&amp;"; break;
+            case '"': escaped << "&quot;"; break;
+            case '\'': escaped << "&apos;"; break;
+            case '<': escaped << "&lt;"; break;
+            case '>': escaped << "&gt;"; break;
+            default: escaped << c;
+        }
+    }
+    return escaped.str();
+}
+
+// Writes only the main XML tag, ignoring children
 bool CXMLWriter::WriteEntity(const SXMLEntity &entity) {
     if (!Sink) return false;
 
     std::ostringstream output;
-    std::ostringstream attrstr;
 
     if (entity.DType == SXMLEntity::EType::StartElement) {
         output << "<" << entity.DNameData;
 
+        // Write attributes with correct escaping
         for (const auto &attr : entity.DAttributes) {
-            output << " " << attr.first << "=\"";
-            for (char c : attr.second) {
-                if (c == '&') {
-                    output << "&amp;";
-                    attrstr << "&amp;";
-                }
-                else if (c == '<') {
-                    output << "&lt;";
-                    attrstr << "&lt;";
-                }
-                else if (c == '>') {
-                    output << "&gt;";
-                    attrstr << "&gt;";
-                }
-                else if (c == '\"') {
-                    output << "&quot;";
-                    attrstr << "&quot;";
-                }
-                else if (c == '\'') {
-                    output << "&apos;";
-                    attrstr << "&apos;";
-                }
-                else output << c; 
-            }
-            output << "\"";
+            output << " " << attr.first << "=\"" << EscapeXML(attr.second) << "\"";
         }
 
-        // ✅ Fix: Remove space before self-closing `/ >`
-        if (entity.DAttributes.empty()) {
-            output << "/>";  // ✅ No space before `/>`
-        } else {
-            output << ">";
-            output << attrstr.str();
-        }
+        // ✅ Self-close the tag since we are ignoring children
+        output << "/>";
     } 
     else if (entity.DType == SXMLEntity::EType::EndElement) {
-        output << "</" << entity.DNameData << ">";
+        // ❌ Skip writing end elements since we're self-closing
+        return true;
+    }
+    else if (entity.DType == SXMLEntity::EType::CharData) {
+        // ❌ Ignore any child text content
+        return true;
     }
 
     std::string outputStr = output.str();
