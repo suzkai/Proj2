@@ -13,6 +13,7 @@ bool CXMLWriter::WriteEntity(const SXMLEntity &entity) {
     if (!Sink) return false;
 
     std::ostringstream output;
+    std::ostringstream attrstr;
 
     if (entity.DType == SXMLEntity::EType::StartElement) {
         output << "<" << entity.DNameData;
@@ -20,11 +21,26 @@ bool CXMLWriter::WriteEntity(const SXMLEntity &entity) {
         for (const auto &attr : entity.DAttributes) {
             output << " " << attr.first << "=\"";
             for (char c : attr.second) {
-                if (c == '&') output << "&amp;";
-                else if (c == '<') output << "&lt;";
-                else if (c == '>') output << "&gt;";
-                else if (c == '\"') output << "&quot;";
-                else if (c == '\'') output << "&apos;";
+                if (c == '&') {
+                    output << "&amp;";
+                    attrstr << "&amp;";
+                }
+                else if (c == '<') {
+                    output << "&lt;";
+                    attrstr << "&lt;";
+                }
+                else if (c == '>') {
+                    output << "&gt;";
+                    attrstr << "&gt;";
+                }
+                else if (c == '\"') {
+                    output << "&quot;";
+                    attrstr << "&quot;";
+                }
+                else if (c == '\'') {
+                    output << "&apos;";
+                    attrstr << "&apos;";
+                }
                 else output << c; 
             }
             output << "\"";
@@ -35,6 +51,7 @@ bool CXMLWriter::WriteEntity(const SXMLEntity &entity) {
             output << "/>";  // ✅ No space before `/>`
         } else {
             output << ">";
+            output << attrstr.str();
         }
     } 
     else if (entity.DType == SXMLEntity::EType::EndElement) {
