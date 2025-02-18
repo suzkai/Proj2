@@ -21,10 +21,10 @@ bool CXMLWriter::WriteEntity(const SXMLEntity &entity) {
             output << " " << attr.first << "=\"";
             for (char c : attr.second) {
                 if (c == '&') output << "&amp;";
-                if (c == '<') output << "&lt;";
-                if (c == '>') output << "&gt;";
-                if (c == '"') output << "&quot;";
-                if (c == '\'') output << "&apos;";
+                else if (c == '<') output << "&lt;";
+                else if (c == '>') output << "&gt;";
+                else if (c == '\"') output << "&quot;";
+                else if (c == '\'') output << "&apos;";
                 else output << c; 
             }
             output << "\"";
