@@ -40,3 +40,35 @@ TEST(XMLWriterTest, WriteOSMElement) {
 
     EXPECT_EQ(dataSink->String(), expected_output);
 }
+
+TEST(XMLWriterTest, Nested) {
+    auto dataSink = std::make_shared<CStringDataSink>();
+    CXMLWriter writer(dataSink);
+
+    SXMLEntity entity;
+    entity.DType = SXMLEntity::EType::StartElement;
+    entity.DNameData = "test";
+
+    writer.WriteEntity(entity);
+    std::string expected_output = "<test>";
+    EXPECT_EQ(dataSink->String(), expected_output);
+
+    SXMLEntity nest;
+    nest.DType = SXMLEntity::EType::StartElement;
+    nest.DNameData = "nest";
+
+    writer.WriteEntity(nest);
+    std::string expected_output1 = "<test><nest>";
+    EXPECT_EQ(dataSink->String(), expected_output1);
+
+    SXMLEntity nestEnd;
+    nest.DType = SXMLEntity::EType::EndElement;
+    nest.DNameData = "nest";
+
+    writer.WriteEntity(nest);
+    std::string expected_output2 = "<test><nest></nest>";
+    EXPECT_EQ(dataSink->String(), expected_output2);
+}
+
+
+
