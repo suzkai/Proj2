@@ -21,19 +21,34 @@ bool CXMLWriter::WriteEntity(const SXMLEntity &entity) {
         for (const auto &attr : entity.DAttributes) {
             output << " " << attr.first << "=\"";
             for (char c : attr.second) {
-                if (c == '&') output << "&amp;";
-                else if (c == '<') output << "&lt;";
-                else if (c == '>') output << "&gt;";
-                else if (c == '"') output << "&quot;";
-                else if (c == '\'') output << "&apos;";
-                else output << c;
+                if (c == '&') {
+                    output << "&amp;";
+                    attrstr << "&amp;";
+                }
+                else if (c == '<') {
+                    output << "&lt;";
+                    attrstr << "&lt;";
+                }
+                else if (c == '>') {
+                    output << "&gt;";
+                    attrstr << "&gt;";
+                }
+                else if (c == '\"') {
+                    output << "&quot;";
+                    attrstr << "&quot;";
+                }
+                else if (c == '\'') {
+                    output << "&apos;";
+                    attrstr << "&apos;";
+                }
+                else output << c; 
             }
             output << "\"";
         }
 
-        // Fix: Correctly self-close empty elements
-        if (entity.DType == SXMLEntity::EType::StartElement && entity.DAttributes.empty()) {
-            output << "/>";  // Ensure proper self-closing tag
+        // ✅ Fix: Remove space before self-closing `/ >`
+        if (entity.DAttributes.empty()) {
+            output << "/>";  // ✅ No space before `/>`
         } else {
             output << ">";
             output << attrstr.str();
