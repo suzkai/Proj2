@@ -46,9 +46,8 @@ bool CXMLWriter::WriteEntity(const SXMLEntity &entity) {
             output << "\"";
         }
 
-        // ✅ Fix: Remove space before self-closing `/ >`
         if (entity.DAttributes.empty()) {
-            output << "/>";  // ✅ No space before `/>`
+            output << "/>"; 
         } else {
             output << ">";
             output << attrstr.str();
@@ -57,6 +56,8 @@ bool CXMLWriter::WriteEntity(const SXMLEntity &entity) {
     else if (entity.DType == SXMLEntity::EType::EndElement) {
         output << "</" << entity.DNameData << ">";
     }
+
+    // output << "\n";
 
     std::string outputStr = output.str();
     std::vector<char> outputVec(outputStr.begin(), outputStr.end());
