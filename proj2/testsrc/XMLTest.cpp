@@ -40,7 +40,7 @@ TEST(XMLWriterTest, Nested) {
     entity.DNameData = "test";
 
     writer.WriteEntity(entity);
-    std::string expected_output = "<test/>";
+    std::string expected_output = "<test>";
     EXPECT_EQ(dataSink->String(), expected_output);
 
     SXMLEntity nest;
@@ -48,8 +48,16 @@ TEST(XMLWriterTest, Nested) {
     nest.DNameData = "nest";
 
     writer.WriteEntity(nest);
-    std::string expected_output1 = "<test/><nest/>";
+    std::string expected_output1 = "<test><nest>";
     EXPECT_EQ(dataSink->String(), expected_output1);
+
+    SXMLEntity nestEnd;
+    nest.DType = SXMLEntity::EType::EndElement;
+    nest.DNameData = "nest";
+
+    writer.WriteEntity(nest);
+    std::string expected_output2 = "<test><nest></nest>";
+    EXPECT_EQ(dataSink->String(), expected_output2);
 }
 
 
