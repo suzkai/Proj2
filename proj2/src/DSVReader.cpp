@@ -91,7 +91,7 @@ bool CDSVReader::ReadRow(std::vector<std::string> &row) {
             }
             
         }
-        else if(ch == delimiter) { // If delimiter is found outside quotes
+        else if(ch == delimiter && stack.empty()) { // If delimiter is found outside quotes
             row.push_back(cell);
             cell.clear();
         }
