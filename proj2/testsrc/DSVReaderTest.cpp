@@ -62,13 +62,24 @@ TEST(DSVReaderTest, RT3) {
 // Only thing your reader is missing is if there is a \n at end
 // **I think**
 TEST(DSVReaderTest, RT4) {
-    std::string input_data = "\".\"\"hi\"\".\"\n";
+    std::string input_data = "\".\"\"hi\"\"!\"\n";
     auto dataSource = std::make_shared<CStringDataSource>(input_data);
     CDSVReader reader(dataSource, ',');
 
     std::vector<std::string> row;
     EXPECT_TRUE(reader.ReadRow(row));
-    EXPECT_EQ(row[0], ".\"hi\".");
+    EXPECT_EQ(row[0], ".\"hi\"!");
+    EXPECT_TRUE(reader.End());
+}
+
+TEST(DSVReaderTest, RT5) {
+    std::string input_data = "\"My name is \"\"Bob\"\"!\"";
+    auto dataSource = std::make_shared<CStringDataSource>(input_data);
+    CDSVReader reader(dataSource, ',');
+
+    std::vector<std::string> row;
+    EXPECT_TRUE(reader.ReadRow(row));
+    EXPECT_EQ(row[0], "My name is \"Bob\"!");
     EXPECT_TRUE(reader.End());
 }
 

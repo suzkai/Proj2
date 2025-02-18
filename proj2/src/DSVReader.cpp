@@ -62,43 +62,80 @@ bool CDSVReader::ReadRow(std::vector<std::string> &row) {
         return false;
     }
 
-    std::stringstream lineStream(DImplementation->CurrentLine);
-    std::string cell;
+    std::string linestream = DImplementation->CurrentLine;
     char delimiter = DImplementation->Delimiter;
     bool inQuotes = false;
+    std::string cell;
+    size_t i = 0;
 
-    while (lineStream) {
-        char ch;
-        if (!lineStream.get(ch)) { 
-            break; 
-        }
+    while (i < linestream.size()) {
+        char ch = linestream[i];
 
-        if (ch == '"') { // Handle quoted fields
-            if (!inQuotes) {
+        if(ch == '"'){ // Handle quoted fields
+            if(!inQuotes){
                 inQuotes = true; // Opening quote
-            } else {
-                if (lineStream.peek() == '"') { // Handle escaped quotes
-                    lineStream.get(ch);
+            }
+            else{ // Handle escaped quotes
+                // if in index and next char is double quote
+                if (i + 1 < linestream.size() && linestream[i + 1] == '"') {
                     cell += '"';
-                } else {
+                    i++; // skip 2nd quote
+                }
+                else{
                     inQuotes = false; // Closing quote
                 }
             }
-        } else if (ch == delimiter && !inQuotes) { // If delimiter is found outside quotes
+        }
+        else if(ch == delimiter && !inQuotes) { // If delimiter is found outside quotes
             row.push_back(cell);
             cell.clear();
-        } else {
+        }
+        else{
             cell += ch;
         }
+
+        i++; //increment
     }
 
     row.push_back(cell);
 
-    // 🔹 Preserve Quotes Around Fully Quoted Strings
-    if (!row.empty() && row[0].front() == '"' && row[0].back() == '"') {
-        row[0] = "\"" + row[0] + "\"";  // Keep the full quoted string format
-    }
-
     return true;
+
+    // std::stringstream lineStream(DImplementation->CurrentLine);
+    // std::string cell;
+    // char delimiter = DImplementation->Delimiter;
+    // bool inQuotes = false;
+
+    // while (lineStream) {
+    //     char ch;
+    //     if (!lineStream.get(ch)) { 
+    //         break; 
+    //     }
+
+    //     if (ch == '"') { // Handle quoted fields
+    //         if (!inQuotes) {
+    //             inQuotes = true; // Opening quote
+    //         }
+    //         else {
+    //             if (lineStream.peek() == '"') { // Handle escaped quotes
+    //                 cell += "\"";
+    //                 lineStream.get(ch);
+    //             }
+    //             else {
+    //                 inQuotes = false; // Closing quote
+    //             }
+    //         }
+    //     } else if (ch == delimiter && !inQuotes) { // If delimiter is found outside quotes
+    //         row.push_back(cell);
+    //         cell.clear();
+    //     } else {
+    //         cell += ch;
+    //     }
+    // }
+
+    // row.push_back(cell);
+
+
+    // return true;
 }
 
