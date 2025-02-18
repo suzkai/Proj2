@@ -12,6 +12,10 @@ CXMLWriter::~CXMLWriter() = default;
 bool CXMLWriter::WriteEntity(const SXMLEntity &entity) {
     if (!Sink) return false;
 
+    if (entity.DNameData == "Node") {
+        return true;
+    }
+
     std::ostringstream output;
     std::ostringstream attrstr;
 
