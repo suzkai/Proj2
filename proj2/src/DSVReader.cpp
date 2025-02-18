@@ -66,27 +66,32 @@ bool CDSVReader::ReadRow(std::vector<std::string> &row) {
     char delimiter = DImplementation->Delimiter;
     bool inQuotes = false;
     std::string cell;
+    std::vector<char> stack(linestream.length());
     size_t i = 0;
 
     while (i < linestream.size()) {
         char ch = linestream[i];
 
         if(ch == '"'){ // Handle quoted fields
-            if(!inQuotes){
-                inQuotes = true; // Opening quote
+            
+            if(stack.empty() && stack.back() != '"'){
+                stack.push_back(ch);
             }
-            else{ // Handle escaped quotes
-                // if in index and next char is double quote
-                if (i + 1 < linestream.size() && linestream[i + 1] == '"') {
-                    cell += '"';
-                    i++; // skip 2nd quote
-                }
-                else{
-                    inQuotes = false; // Closing quote
-                }
+            
+            else{
+                stack.pop_back();
             }
+            if (i + 1 < linestream.size() 
+                && linestream[i + 1] == '"' 
+                && linestream[i + 2] != delimiter 
+                && linestream[i - 1] != delimiter) {
+
+                cell += '"';
+                i++; // skip 2nd quote
+            }
+            
         }
-        else if(ch == delimiter && !inQuotes) { // If delimiter is found outside quotes
+        else if(ch == delimiter) { // If delimiter is found outside quotes
             row.push_back(cell);
             cell.clear();
         }

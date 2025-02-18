@@ -73,7 +73,7 @@ TEST(DSVReaderTest, RT4) {
 }
 
 TEST(DSVReaderTest, RT5) {
-    std::string input_data = "\"My name is \"\"Bob\"\"!\"";
+    std::string input_data = "My name is \"\"Bob\"\"!";
     auto dataSource = std::make_shared<CStringDataSource>(input_data);
     CDSVReader reader(dataSource, ',');
 
