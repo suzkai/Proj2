@@ -18,7 +18,16 @@ bool CXMLWriter::WriteEntity(const SXMLEntity &entity) {
         output << "<" << entity.DNameData;
 
         for (const auto &attr : entity.DAttributes) {
-            output << " " << attr.first << "=\"" << attr.second << "\"";
+            output << " " << attr.first << "=\"";
+            for (char c : attr.second) {
+                if (c == '&') output << "&amp;";
+                if (c == '<') output << "&lt;";
+                if (c == '>') output << "&gt;";
+                if (c == '"') output << "&quot;";
+                if (c == '\'') output << "&apos;";
+                else output << c; 
+            }
+            output << "\"";
         }
 
         // ✅ Fix: Remove space before self-closing `/ >`
