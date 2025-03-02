@@ -9,17 +9,6 @@ CXMLWriter::CXMLWriter(std::shared_ptr<CDataSink> sink)
 CXMLWriter::~CXMLWriter() = default;
 
 // Writes an XML entity to the sink
-#include "XMLWriter.h"
-#include <sstream>
-
-// Constructor: initializes the XML writer
-CXMLWriter::CXMLWriter(std::shared_ptr<CDataSink> sink)
-    : Sink(std::move(sink)) {}
-
-// Destructor
-CXMLWriter::~CXMLWriter() = default;
-
-// Writes an XML entity to the sink
 bool CXMLWriter::WriteEntity(const SXMLEntity &entity) {
     if (!Sink) return false;
 
