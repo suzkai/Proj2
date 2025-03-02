@@ -1,92 +1,137 @@
 #include "XMLWriter.h"
+#include <stack>
+#include <string>
 #include <sstream>
+
+// internal implementation of the CXMLWriter using a stack to manage open XML elements
+struct CXMLWriter::SImplementation {
+    std::shared_ptr<CDataSink> Sink;  // destination for XML output
+    std::stack<std::string> Stack;    // stack for nesting and closure
+
+    // Data Sink Consctructor
+    explicit SImplementation(std::shared_ptr<CDataSink> sink) 
+        : Sink(std::move(sink)) {}
+
+    // Writes an XML entity to the sink
+    bool WriteEntity(const SXMLEntity &entity) {
+        std::ostringstream output;
+
+        switch (entity.DType) {
+            // opening tags
+            if(entity.DType == SXMLEntity::EType::StartElement){
+                output << "<" << entity.DNameData;
+
+                // Attributes
+                for (const auto &attr : entity.DAttributes) {
+                    output << " " << attr.first << "=\"";
+                    for (char c : attr.second) {
+                        if (c == '&') {
+                            output << "&amp;";
+                        }
+                        else if (c == '<') {
+                            output << "&lt;";
+                        }
+                        else if (c == '>') {
+                            output << "&gt;";
+                        }
+                        else if (c == '\"') {
+                            output << "&quot;";
+                        }
+                        else if (c == '\'') {
+                            output << "&apos;";
+                        }
+                        else {
+                            output << c;
+                        }
+                    }
+                    output << "\"";
+                }
+
+                output << ">";
+                Stack.push(entity.DNameData);
+            }
+
+            // Closing tags
+            else if(entity.DType == SXMLEntity::EType::EndElement){
+                output << "</" << entity.DNameData << ">";
+                if (!Stack.empty() && Stack.top() == entity.DNameData) {
+                    Stack.pop();
+                }
+            }
+
+            // Data in tags
+            else if(entity.DType == SXMLEntity::EType::CharData){ 
+                for (char c : entity.DNameData) {   
+                        output << c;
+                }
+            }
+
+            // Self-closing tags
+            else if(entity.DType == SXMLEntity::EType::CompleteElement){
+                output << "<" << entity.DNameData;
+
+                for (const auto &attr : entity.DAttributes) {
+                    output << " " << attr.first << "=\"";
+                    for (char c : attr.second) {
+                        if (c == '&') {
+                            output << "&amp;";
+                        }
+                        else if (c == '<') {
+                            output << "&lt;";
+                        }
+                        else if (c == '>') {
+                            output << "&gt;";
+                        }
+                        else if (c == '\"') {
+                            output << "&quot;";
+                        }
+                        else if (c == '\'') {
+                            output << "&apos;";
+                        }
+                        else {
+                            output << c;
+                        }
+                    }
+                    output << "\"";
+                }
+
+                output << "/>";
+        }
+
+        std::string outputStr = output.str();
+        std::vector<char> outputVec(outputStr.begin(), outputStr.end());
+
+        return Sink->Write(outputVec) > 0;
+    }
+};
+
+    bool Flush() {
+        while (!Stack.empty()) {
+            std::string endTag = "</" + Stack.top() + ">";
+            std::vector<char> outputVec(endTag.begin(), endTag.end());
+            if (!Sink->Write(outputVec)) {
+                return false;
+            }
+            Stack.pop();
+        }
+        return true;
+    }
+};
+
+////////////////////////////////////////////////////////////////////////
 
 // Constructor: initializes the XML writer
 CXMLWriter::CXMLWriter(std::shared_ptr<CDataSink> sink)
-    : Sink(std::move(sink)) {}
+    : DImplementation(std::make_unique<SImplementation>(std::move(sink))) {}
 
 // Destructor
 CXMLWriter::~CXMLWriter() = default;
 
-// Writes an XML entity to the sink
 bool CXMLWriter::WriteEntity(const SXMLEntity &entity) {
-    if (!Sink) return false;
-
-    if (entity.DNameData == "node") {
-        return true;
-    }
-
-    std::vector<char> output;
-
-    if (entity.DType == SXMLEntity::EType::StartElement) {
-        // Beginning tag
-        output.push_back('<');
-        for (char c : entity.DNameData) {
-            output.push_back(c);
-        }
-
-        // Attributes
-        for (const auto &attr : entity.DAttributes) {
-            output.push_back(' ');
-            for (char c : attr.first) {
-                output.push_back(c);
-            }
-            output.push_back('=');
-            output.push_back('\"');
-            for (char c : attr.second) {
-                if (c == '&') {
-                    for (char d : "&amp;"){
-                        output.push_back(d);
-                    }
-                }
-                else if (c == '<') {
-                    for (char d : "&lt;"){
-                        output.push_back(d);
-                    }
-                }
-                else if (c == '>') {
-                    for (char d : "&gt;"){
-                        output.push_back(d);
-                    }
-                }
-                else if (c == '\"') {
-                    for (char d : "&quot;"){
-                        output.push_back(d);
-                    }
-                }
-                else if (c == '\'') {
-                    for (char d : "&apos;"){
-                        output.push_back(d);
-                    } 
-                }
-                else {
-                    output.push_back(c);
-                }
-            }
-            output.push_back('\"');
-        }
-
-        // Close beginning tag
-        if(entity.DAttributes.empty()){
-            output.push_back('/');
-            output.push_back('>');
-        } 
-        else{
-            output.push_back('>');
-        }
-    } 
-    // End tag
-    else if (entity.DType == SXMLEntity::EType::EndElement) {
-        output.push_back('<');
-        output.push_back('/');
-        for (char c : entity.DNameData) {
-            output.push_back(c);
-        }
-        output.push_back('>');
-    }
-
-    return Sink->Write(output) > 0;
+    return DImplementation->WriteEntity(entity);
 }
+
 bool CXMLWriter::Flush() {
-    return true;
+    return DImplementation->Flush();
 }
+
