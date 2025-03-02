@@ -60,7 +60,24 @@ struct CXMLWriter::SImplementation {
             // Data in tags
             else if(entity.DType == SXMLEntity::EType::CharData){ 
                 for (char c : entity.DNameData) {   
+                    if (c == '&') {
+                        output << "&amp;";
+                    }
+                    else if (c == '<') {
+                        output << "&lt;";
+                    }
+                    else if (c == '>') {
+                        output << "&gt;";
+                    }
+                    else if (c == '\"') {
+                        output << "&quot;";
+                    }
+                    else if (c == '\'') {
+                        output << "&apos;";
+                    }
+                    else {
                         output << c;
+                    }
                 }
             }
 
