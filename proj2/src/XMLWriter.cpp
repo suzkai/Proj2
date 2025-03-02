@@ -15,7 +15,6 @@ struct CXMLWriter::SImplementation {
     bool WriteEntity(const SXMLEntity &entity) {
         std::ostringstream output;
 
-        switch (entity.DType) {
             // opening tags
             if(entity.DType == SXMLEntity::EType::StartElement){
                 output << "<" << entity.DNameData;
@@ -102,7 +101,6 @@ struct CXMLWriter::SImplementation {
 
         return Sink->Write(outputVec) > 0;
     }
-};
 
     bool Flush() {
         while (!Stack.empty()) {
