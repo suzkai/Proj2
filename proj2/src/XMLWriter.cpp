@@ -3,10 +3,9 @@
 #include <string>
 #include <sstream>
 
-// internal implementation of the CXMLWriter using a stack to manage open XML elements
 struct CXMLWriter::SImplementation {
-    std::shared_ptr<CDataSink> Sink;  // destination for XML output
-    std::stack<std::string> Stack;    // stack for nesting and closure
+    std::shared_ptr<CDataSink> Sink;
+    std::stack<std::string> Stack;
 
     // Data Sink Consctructor
     explicit SImplementation(std::shared_ptr<CDataSink> sink) 
