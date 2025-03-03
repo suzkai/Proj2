@@ -46,7 +46,20 @@ struct CXMLReader::SImplementation {
     }
 
     static void CharacterDataHandler(void *userData, const char *data, int len) {
-        return;
+        auto *impl = static_cast<SImplementation *>(userData);
+        std::string text(data, len);
+
+        if (text.find_first_not_of("\t\n\r") != std::string::npos) {
+            if (!impl->Entities.empty() && impl->Entities.back().DType == SXMLEntity::EType::CharData) {
+                impl->Entities.back().DNameData += text;
+            } 
+            else {
+                SXMLEntity entity;
+                entity.DType = SXMLEntity::EType::CharData;
+                entity.DNameData = text;
+                impl->Entities.push_back(entity);
+            }
+        }
     }
 
     bool ReadNextEntity(SXMLEntity &entity) {
