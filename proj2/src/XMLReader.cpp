@@ -28,10 +28,12 @@ struct CXMLReader::SImplementation {
         SXMLEntity entity;
         entity.DType = SXMLEntity::EType::StartElement;
         entity.DNameData = name;
-
-        for (int i = 0; atts[i]; i += 2) {
-            entity.DAttributes.push_back({atts[i], atts[i + 1]});
+        if (atts){
+            for (int i = 0; atts[i]; i += 2) {
+                entity.DAttributes.push_back({atts[i], atts[i + 1]});
+            }
         }
+        
 
         impl->Entities.push_back(entity);
     }
@@ -87,8 +89,8 @@ struct CXMLReader::SImplementation {
         }
 
         if (!Entities.empty()) {
-            entity = Entities.back();
-            Entities.pop_back();
+            entity = Entities.front();
+            Entities.erase(Entities.begin());
             return true;
         }
 
