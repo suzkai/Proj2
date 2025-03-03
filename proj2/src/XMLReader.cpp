@@ -60,6 +60,40 @@ struct CXMLReader::SImplementation {
             }
         }
     }
+
+    bool ReadNextEntity(SXMLEntity &entity) {
+        while (Entities.empty()) {
+            if (Source->End()) {
+                EndOfFile = true;
+                return false;
+            }
+
+            std::vector<char> buffer;
+            char ch;
+            while (Source->Get(ch)) {  
+                buffer.push_back(ch);
+            }
+
+            if (buffer.empty()) {
+                EndOfFile = true;
+                return false;
+            }
+
+            buffer.push_back('\0');
+
+            if (!XML_Parse(Parser, buffer.data(), buffer.size() - 1, Source->End())) {
+                return false;
+            }
+        }
+
+        if (!Entities.empty()) {
+            entity = Entities.front();
+            Entities.erase(Entities.begin());
+            return true;
+        }
+
+        return false;
+    }
 };
 
 // Constructor for Reading Only
@@ -81,9 +115,4 @@ bool CXMLReader::End() const {
 // Reads an XML entity into the provided `entity` structure
 bool CXMLReader::ReadEntity(SXMLEntity &entity, bool skipcdata) {
     return DImplementation->ReadNextEntity(entity);
-}
-
-// Writes an XML entity to the sink
-bool CXMLReader::WriteEntity(const SXMLEntity &entity) {
-    return DImplementation->WriteEntity(entity);
 }
