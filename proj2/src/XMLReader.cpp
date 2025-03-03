@@ -29,7 +29,9 @@ struct CXMLReader::SImplementation {
         entity.DType = SXMLEntity::EType::StartElement;
         entity.DNameData = name;
 
-        
+        for (int i = 0; atts[i]; i += 2) {
+            entity.DAttributes.push_back({atts[i], atts[i + 1]});
+        }
 
         impl->Entities.push_back(entity);
     }
@@ -59,7 +61,7 @@ struct CXMLReader::SImplementation {
         
     }
 
-    bool ReadNextEntity(SXMLEntity &entity) {
+    bool ReadEntity(SXMLEntity &entity) {
         while (Entities.empty()) {
             if (Source->End()) {
                 EndOfFile = true;
@@ -85,8 +87,8 @@ struct CXMLReader::SImplementation {
         }
 
         if (!Entities.empty()) {
-            entity = Entities.front();
-            Entities.erase(Entities.begin());
+            entity = Entities.back();
+            Entities.pop_back();
             return true;
         }
 
@@ -112,5 +114,5 @@ bool CXMLReader::End() const {
 
 // Reads an XML entity into the provided `entity` structure
 bool CXMLReader::ReadEntity(SXMLEntity &entity, bool skipcdata) {
-    return DImplementation->ReadNextEntity(entity);
+    return DImplementation->ReadEntity(entity);
 }
