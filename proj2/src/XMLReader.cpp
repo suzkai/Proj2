@@ -30,7 +30,7 @@ struct CXMLReader::SImplementation {
         entity.DNameData = name;
 
         for (int i = 0; atts[i]; i += 2) {
-            entity.DAttributes.emplace_back(atts[i], atts[i + 1]);
+            entity.DAttributes.push_back({atts[i], atts[i + 1]});
         }
 
         impl->Entities.push_back(entity);
@@ -59,66 +59,6 @@ struct CXMLReader::SImplementation {
                 impl->Entities.push_back(entity);
             }
         }
-    }
-
-    bool ReadNextEntity(SXMLEntity &entity) {
-        while (Entities.empty()) {
-            if (Source->End()) {
-                EndOfFile = true;
-                return false;
-            }
-
-            std::vector<char> buffer;
-            char ch;
-            while (Source->Get(ch)) {  
-                buffer.push_back(ch);
-            }
-
-            if (buffer.empty()) {
-                EndOfFile = true;
-                return false;
-            }
-
-            buffer.push_back('\0');
-
-            if (!XML_Parse(Parser, buffer.data(), buffer.size() - 1, Source->End())) {
-                return false;
-            }
-        }
-
-        if (!Entities.empty()) {
-            entity = Entities.front();
-            Entities.erase(Entities.begin());
-            return true;
-        }
-
-        return false;
-    }
-
-    bool WriteEntity(const SXMLEntity &entity) {
-        if (!Sink) {
-            return false;
-        }
-    
-        std::ostringstream output;
-        if (entity.DType == SXMLEntity::EType::StartElement) {
-            output << "<" << entity.DNameData;
-            for (const auto &attr : entity.DAttributes) {
-                output << " " << attr.first << "=\"" << attr.second << "\"";
-            }
-            output << "/>";
-        } 
-        else if (entity.DType == SXMLEntity::EType::EndElement) {
-            output << "</" << entity.DNameData << ">";
-        } 
-        else if (entity.DType == SXMLEntity::EType::CharData) {
-            output << entity.DNameData;
-        }
-    
-        std::string outputStr = output.str();
-        std::vector<char> outputVec(outputStr.begin(), outputStr.end());
-    
-        return Sink->Write(outputVec) > 0;
     }
 };
 
