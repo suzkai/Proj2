@@ -29,9 +29,7 @@ struct CXMLReader::SImplementation {
         entity.DType = SXMLEntity::EType::StartElement;
         entity.DNameData = name;
 
-        for (int i = 0; atts[i]; i += 2) {
-            entity.DAttributes.push_back({atts[i], atts[i + 1]});
-        }
+        
 
         impl->Entities.push_back(entity);
     }
