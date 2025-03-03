@@ -58,12 +58,7 @@ struct CXMLReader::SImplementation {
         if (!impl->Entities.empty() && impl->Entities.back().DType == SXMLEntity::EType::CharData) {
             impl->Entities.back().DNameData += text;
         } 
-        else {
-            SXMLEntity entity;
-            entity.DType = SXMLEntity::EType::CharData;
-            entity.DNameData = text;
-            impl->Entities.push_back(entity);
-        }
+
         
     }
 
