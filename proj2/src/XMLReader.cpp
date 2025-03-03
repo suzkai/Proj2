@@ -67,7 +67,7 @@ struct CXMLReader::SImplementation {
         }
     }
 
-    bool ReadEntity(SXMLEntity &entity) {
+    bool ReadEntity(SXMLEntity &entity, bool skipcdata) {
         while (Entities.empty()) {
             if (Source->End()) {
                 EndOfFile = true;
@@ -92,9 +92,12 @@ struct CXMLReader::SImplementation {
             }
         }
 
-        if (!Entities.empty()) {
+        while(!Entities.empty()) {
             entity = Entities.front();
             Entities.erase(Entities.begin());
+            if(skipcdata && entity.DType == SXMLEntity::EType::CharData){
+                continue;
+            }
             return true;
         }
 
@@ -120,5 +123,5 @@ bool CXMLReader::End() const {
 
 // Reads an XML entity into the provided `entity` structure
 bool CXMLReader::ReadEntity(SXMLEntity &entity, bool skipcdata) {
-    return DImplementation->ReadEntity(entity);
+    return DImplementation->ReadEntity(entity, skipcdata);
 }
