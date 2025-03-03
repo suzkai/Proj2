@@ -51,15 +51,20 @@ struct CXMLReader::SImplementation {
         auto *impl = static_cast<SImplementation *>(userData);
         std::string text(data, len);
 
-        if(len == 0){
+        if(len <= 0){
             return;
         }
 
         if (!impl->Entities.empty() && impl->Entities.back().DType == SXMLEntity::EType::CharData) {
-            impl->Entities.back().DNameData += text;
+            impl->Entities.back().DNameData.append(text);
         } 
 
-        
+        else {
+            SXMLEntity entity;
+            entity.DType = SXMLEntity::EType::CharData;
+            entity.DNameData = text;
+            impl->Entities.push_back(entity);
+        }
     }
 
     bool ReadEntity(SXMLEntity &entity) {
